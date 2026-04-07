@@ -85,6 +85,5 @@ post {
         echo "❌ Pipeline Failed! Check logs."
     }
 }
-```
 
 }
