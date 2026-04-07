@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: flask-app
-        image: rakesh6nm/my-flask-app:1   # 🔥 version will change via Jenkins
+        image: rakesh6nm/my-flask-app:11
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
