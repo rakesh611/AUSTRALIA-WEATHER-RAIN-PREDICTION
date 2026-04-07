@@ -19,7 +19,12 @@ stages {
     stage('Build Docker Image') {
         steps {
             sh '''
-            docker build -t $IMAGE_NAME:$TAG .
+            echo "Current Directory:"
+            pwd
+            echo "Files:"
+            ls -l
+
+            docker build -t rakesh6nm/my-flask-app:${BUILD_NUMBER} -f flask-app/Dockerfile ./flask-app
             '''
         }
     }
