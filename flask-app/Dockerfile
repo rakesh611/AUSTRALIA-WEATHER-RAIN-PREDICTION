@@ -1,19 +1,23 @@
-# Dockerfile at repo root
+# Base image
 FROM python:3.9-slim
 
+# Set working directory
 WORKDIR /app
 
-# Copy Flask app
+# Copy application code
 COPY flask-app/ /app/
 
-# Copy model file
-COPY CODE/artifacts/models/model.pkl /app/CODE/artifacts/models/model.pkl
+# Create necessary directories for model
+RUN mkdir -p /app/CODE/artifacts/models
+
+# Download model directly from GitHub
+ADD https://raw.githubusercontent.com/rakesh611/AUSTRALIA-WEATHER-RAIN-PREDICTION/main/CODE/artifacts/models/model.pkl /app/CODE/artifacts/models/model.pkl
 
 # Install dependencies
-RUN pip install --no-cache-dir -r flask-app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Expose Flask port
 EXPOSE 5000
 
-# Run Flask app
+# Set default command
 CMD ["python", "application.py"]
