@@ -4,7 +4,7 @@ import numpy as np
 
 app = Flask(__name__)
 
-MODEL_PATH = "artifacts/models/model.pkl"
+MODEL_PATH = "CODE/artifacts/models/model.pkl"
 model = joblib.load(MODEL_PATH)
 
 
