@@ -27,15 +27,11 @@ pipeline {
         }
 
         stage('Build Docker Image') {
-            steps {
-                sh '''
-                echo "Current Directory:"
-                pwd
-                echo "Files:"
-                ls -l
-
-                docker build -t $IMAGE_NAME:$TAG -f flask-app/Dockerfile ./flask-app
-                '''
+            stage('Build Docker Image') {
+                steps {
+                    dir("${env.WORKSPACE}") {
+                        sh 'docker build -t rakesh6nm/flask-app:latest .'
+                }
             }
         }
 
