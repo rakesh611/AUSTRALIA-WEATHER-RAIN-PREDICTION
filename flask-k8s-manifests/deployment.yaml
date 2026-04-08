@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: flask-app
-        image: rakesh6nm/flask-app:21
+        image: rakesh6nm/flask-app:22
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
