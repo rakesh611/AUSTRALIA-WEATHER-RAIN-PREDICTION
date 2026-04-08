@@ -20,7 +20,7 @@ pipeline {
             }
         }
 
-        stage('Clone Application Repo') {
+        stage('Clone Repo') {
             steps {
                 git branch: 'main', url: "${GIT_REPO}"
             }
@@ -28,35 +28,28 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                dir("${env.WORKSPACE}") {
-                    echo "🔹 Building Docker image: $IMAGE_NAME:$TAG"
-                    // Build from repo root and specify Dockerfile
-                    sh "docker build -t $IMAGE_NAME:$TAG -f flask-app/Dockerfile ."
-                }
+                echo "🔹 Building Docker image $IMAGE_NAME:$TAG"
+                sh "docker build -t $IMAGE_NAME:$TAG -f flask-app/Dockerfile ."
             }
         }
 
         stage('Security Scan (Trivy)') {
             steps {
-                echo "🔹 Running Trivy security scan"
-                sh """
-                trivy image --exit-code 0 --severity HIGH,CRITICAL $IMAGE_NAME:$TAG
-                """
+                echo "🔹 Running Trivy scan"
+                sh "trivy image --exit-code 0 --severity HIGH,CRITICAL $IMAGE_NAME:$TAG"
             }
         }
 
         stage('Docker Login') {
             steps {
                 withCredentials([string(credentialsId: 'dockerhub-token', variable: 'DOCKER_TOKEN')]) {
-                    echo "🔹 Logging into Docker Hub"
                     sh 'echo $DOCKER_TOKEN | docker login -u rakesh6nm --password-stdin'
                 }
             }
         }
 
-        stage('Push Image') {
+        stage('Push Docker Image') {
             steps {
-                echo "🔹 Pushing Docker image to Docker Hub"
                 sh """
                 docker push $IMAGE_NAME:$TAG
                 docker tag $IMAGE_NAME:$TAG $IMAGE_NAME:latest
@@ -68,19 +61,17 @@ pipeline {
         stage('Update GitOps Manifest') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'github-creds', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_PASS')]) {
-                    echo "🔹 Updating GitOps manifests"
                     sh """
                     cd $GITOPS_PATH
 
-                    # Update image in deployment.yaml
+                    # Update image tag in deployment.yaml
                     sed -i "s|image:.*|image: $IMAGE_NAME:$TAG|g" deployment.yaml
 
-                    # Configure git
                     git config user.email "jharakesh485@gmail.com"
                     git config user.name "Rakesh"
 
                     git add deployment.yaml
-                    git commit -m "Updated image to version $TAG" || echo "No changes to commit"
+                    git commit -m "Updated image to version $TAG" || echo "No changes"
 
                     git push https://$GIT_USER:$GIT_PASS@github.com/rakesh611/AUSTRALIA-WEATHER-RAIN-PREDICTION.git
                     """
@@ -91,10 +82,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ DevSecOps Pipeline Completed Successfully!"
+            echo "✅ Pipeline completed successfully!"
         }
         failure {
-            echo "❌ Pipeline Failed! Check logs."
+            echo "❌ Pipeline failed! Check logs."
         }
     }
 }
