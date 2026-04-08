@@ -1,13 +1,19 @@
-# Dockerfile inside flask-app/
+# Dockerfile at repo root
 FROM python:3.9-slim
+
 WORKDIR /app
 
-# Copy app code
-COPY . /app/
+# Copy Flask app
+COPY flask-app/ /app/
 
-# Copy model from relative path (adjust path if needed)
-COPY ../CODE/artifacts/models/model.pkl /app/CODE/artifacts/models/model.pkl
+# Copy model file
+COPY CODE/artifacts/models/model.pkl /app/CODE/artifacts/models/model.pkl
 
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies
+RUN pip install --no-cache-dir -r flask-app/requirements.txt
+
+# Expose Flask port
 EXPOSE 5000
+
+# Run Flask app
 CMD ["python", "application.py"]
